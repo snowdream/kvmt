@@ -10,9 +10,14 @@ const bodyparser = require('koa-bodyparser')({
     enableTypes:['json', 'form', 'text']
 });
 const logger = require('koa-logger')();
-const koa_static = require('koa-static')(__dirname + '/public')
+const koa_static = require('koa-static')(__dirname + '/public');
+const staticCache = require('koa-static-cache')((__dirname + '/public'), {
+    maxAge: 24 * 60 * 60  //Add these files to caches for a year
+});
+const convert_staticCache = require('koa-convert')(staticCache);
+
 const compose = require('koa-compose');
-const compressible = require('compressible')
+const compressible = require('compressible');
 const compress = require('koa-compress')({
     filter: function (content_type) {
         return compressible(content_type)
@@ -34,6 +39,7 @@ const all = compose([
     bodyparser,
     json,
     logger,
+    convert_staticCache,
     koa_static,
     views
 ]);
