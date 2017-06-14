@@ -12,6 +12,14 @@ const bodyparser = require('koa-bodyparser')({
 const logger = require('koa-logger')();
 const koa_static = require('koa-static')(__dirname + '/public')
 const compose = require('koa-compose');
+const compressible = require('compressible')
+const compress = require('koa-compress')({
+    filter: function (content_type) {
+        return compressible(content_type)
+    },
+    threshold: 2048,
+    flush: require('zlib').Z_SYNC_FLUSH
+});
 
 const index = require('./routes/index');
 const users = require('./routes/users');
@@ -22,6 +30,7 @@ onerror(app);
 // composed middleware
 const all = compose([
     responseTime,
+    compress,
     bodyparser,
     json,
     logger,
